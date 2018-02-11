@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "250852824013",
+    "firebase_url": "https://aquarloan-268f6.firebaseio.com",
+    "project_id": "aquarloan-268f6",
+    "storage_bucket": "aquarloan-268f6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:250852824013:android:713e3e5db7a2b798",
+        "android_client_info": {
+          "package_name": "com.aquarloan.aquarloan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "250852824013-lqrh69usjqpcmvphln4g45m5mc3osdf2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aquarloan.aquarloan",
+            "certificate_hash": "52bcda5d4bc3d6274ab1738eb7ed4bc701709943"
+          }
+        },
+        {
+          "client_id": "250852824013-t6kt909iujqtusrkjq722vl9csr7fffa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-V7ahos6cc0PkmKFo5eU0O2fKAI-43mI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "250852824013-t6kt909iujqtusrkjq722vl9csr7fffa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
