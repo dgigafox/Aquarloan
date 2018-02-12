@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     protected void registerUser() {
-        String email = mPasswordView.getText().toString().trim();
+        String email = mEmailView.getText().toString().trim();
         final String password = mPasswordView.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                             progressBar.setVisibility(View.GONE);
                         }
                         else {
-                            Toast.makeText(LoginActivity.this, "Could not register. Please try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
