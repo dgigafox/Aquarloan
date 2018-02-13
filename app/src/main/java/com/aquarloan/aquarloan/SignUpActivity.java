@@ -1,50 +1,29 @@
 package com.aquarloan.aquarloan;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -78,7 +57,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     protected void registerUser() {
-        String email = mEmailView.getText().toString().trim();
+        final String email = mEmailView.getText().toString().trim();
         final String password = mPasswordView.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
@@ -98,18 +77,39 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
-                            Toast.makeText(LoginActivity.this, "You are registered.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpActivity.this, "You are registered.", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
                         else {
-                            Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            try {
+                                throw task.getException();
+                            } catch (Exception e) {
+                                e.
+                            }
                             progressBar.setVisibility(View.GONE);
                         }
                     }
-                });
+                })
+        .addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handleAuthenticationException(e);
+            }
+        });
     }
 
+    protected void handleAuthenticationException(@NonNull Exception e){
+        if(e instanceof FirebaseAuthUserCollisionException){
 
+        }
+    }
+
+/*    protected String catchError(String email, String password){
+        try {
+            throw firebaseAuth.createUserWithEmailAndPassword(email, password).getException();
+        }
+
+    }*/
 
 }
 
