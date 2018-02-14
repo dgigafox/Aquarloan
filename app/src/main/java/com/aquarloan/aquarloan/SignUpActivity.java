@@ -10,15 +10,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 
 /**
  * A login screen that offers login via email/password.
@@ -26,10 +24,11 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
 
     // UI references.
+    private ScrollView mSignUpView;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
+    private EditText mConfirmPasswordView;
     private View mProgressView;
-    private View mLoginFormView;
     private Button registerBtn;
     private ProgressBar progressBar;
     private FirebaseAuth firebaseAuth;
@@ -37,10 +36,12 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_signup);
 
+        mSignUpView = (ScrollView) findViewById(R.id.signup_form);
         mEmailView = (AutoCompleteTextView)findViewById(R.id.tvEmail);
         mPasswordView = (EditText) findViewById(R.id.tvPassword);
+        mConfirmPasswordView = (EditText) findViewById(R.id.tvConfirmPassword);
         registerBtn = (Button) findViewById(R.id.registerBtn);
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -59,6 +60,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     protected void registerUser() {
         final String email = mEmailView.getText().toString().trim();
         final String password = mPasswordView.getText().toString();
+        final String confirmPassword = mConfirmPasswordView.getText().toString();
 
         if (TextUtils.isEmpty(email)) {
             Toast.makeText(this, "Please enter an email", Toast.LENGTH_SHORT).show();
@@ -70,7 +72,13 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             return;
         }
 
+        if (TextUtils.isEmpty(confirmPassword)) {
+            Toast.makeText(this, "Please enter your password confirmation", Toast.LENGTH_SHORT).show();
+        }
+
+
         progressBar.setVisibility(View.VISIBLE);
+        mSignUpView.setVisibility(View.GONE);
 
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -84,32 +92,16 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                             try {
                                 throw task.getException();
                             } catch (Exception e) {
-                                e.
+                                Toast.makeText(SignUpActivity.this, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+
                             }
+                            mSignUpView.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.GONE);
                         }
                     }
-                })
-        .addOnFailureListener(this, new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                handleAuthenticationException(e);
-            }
-        });
+                });
+
     }
-
-    protected void handleAuthenticationException(@NonNull Exception e){
-        if(e instanceof FirebaseAuthUserCollisionException){
-
-        }
-    }
-
-/*    protected String catchError(String email, String password){
-        try {
-            throw firebaseAuth.createUserWithEmailAndPassword(email, password).getException();
-        }
-
-    }*/
 
 }
 
