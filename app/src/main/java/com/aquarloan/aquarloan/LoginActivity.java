@@ -79,6 +79,11 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         loginBtn.setOnClickListener(this);
         signUpNowBtn.setOnClickListener(this);
 
+        if(firebaseAuth.getCurrentUser() != null) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+
     }
 
     @Override
@@ -115,7 +120,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()){
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
+                            finish();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
                         }
                         else {

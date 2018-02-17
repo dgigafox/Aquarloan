@@ -1,5 +1,6 @@
 package com.aquarloan.aquarloan;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
@@ -87,6 +88,11 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         if(task.isSuccessful()){
                             Toast.makeText(SignUpActivity.this, "You are registered.", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
+                            finish();
+                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
                         }
                         else {
                             try {
