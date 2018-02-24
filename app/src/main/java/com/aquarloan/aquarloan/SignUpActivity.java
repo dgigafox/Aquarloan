@@ -6,108 +6,145 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class SignUpActivity extends AppCompatActivity implements View.OnClickListener {
+public class SignUpActivity extends AppCompatActivity implements View.OnClickListener{
 
     // UI references.
     private ScrollView mSignUpView;
-    private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
-    private EditText mConfirmPasswordView;
+    private EditText mMobileNumberView, mVerificationCodeView;
+    private TextView tvPromptSent;
     private View mProgressView;
-    private Button registerBtn;
-    private ProgressBar progressBar;
+    private ImageView imgSendDone, imgVerifyDone;
+    private Button btnVerify, btnSend;
+    private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth firebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    private String verifiedId;
 
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
         mSignUpView = (ScrollView) findViewById(R.id.signup_form);
-        mEmailView = (AutoCompleteTextView)findViewById(R.id.tvEmail);
-        mPasswordView = (EditText) findViewById(R.id.tvPassword);
-        mConfirmPasswordView = (EditText) findViewById(R.id.tvConfirmPassword);
-        registerBtn = (Button) findViewById(R.id.registerBtn);
+        tvPromptSent = (TextView) findViewById(R.id.tvPromptSent);
+        mMobileNumberView = (EditText) findViewById(R.id.edMobileNumberSignUp);
+        mVerificationCodeView = (EditText) findViewById(R.id.edVerificationCode);
+        btnVerify = (Button) findViewById(R.id.btnVerify);
+        btnSend = (Button) findViewById(R.id.btnSend);
+        imgSendDone = (ImageView) findViewById(R.id.imgSendDone);
+        imgVerifyDone = (ImageView) findViewById(R.id.imgVerifyDone);
+
+        sendProgress = (ProgressBar) findViewById(R.id.sendProgress);
+        verifyProgress = (ProgressBar) findViewById(R.id.verifyProgress);
+
         firebaseAuth = FirebaseAuth.getInstance();
+        btnSend.setOnClickListener(this);
+        btnVerify.setOnClickListener(this);
 
+        imgSendDone.setVisibility(View.GONE);
+        imgVerifyDone.setVisibility(View.GONE);
+        sendProgress.setVisibility(View.GONE);
+        verifyProgress.setVisibility(View.GONE);
+        mVerificationCodeView.setVisibility(View.GONE);
+        btnVerify.setVisibility(View.GONE);
 
-        registerBtn.setOnClickListener(this);
-        progressBar = (ProgressBar) findViewById(R.id.registerProgress);
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                verifyProgress.setVisibility(View.GONE);
+                signInWithPhoneAuthCredential(phoneAuthCredential);
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+                Toast.makeText(SignUpActivity.this, "Verification failed", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCodeSent(String verificationId,
+                                   PhoneAuthProvider.ForceResendingToken token) {
+                btnSend.setVisibility(View.GONE);
+                btnVerify.setVisibility(View.VISIBLE);
+                tvPromptSent.setVisibility(View.VISIBLE);
+                tvPromptSent.setText(R.string.prompt_sms_sent);
+                sendProgress.setVisibility(View.GONE);
+                verifiedId = verificationId;
+            }
+        };
+
     }
+
 
     @Override
     public void onClick(View v) {
-        if (v == registerBtn) {
-            registerUser();
+        if (v == btnSend) {
+
+            sendProgress.setVisibility(View.VISIBLE);
+            String mobileNumber = mMobileNumberView.getText().toString();
+            PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                    mobileNumber,        // Phone number to verify
+                    60,                 // Timeout duration
+                    TimeUnit.SECONDS,   // Unit of timeout
+                    this,               // Activity (for callback binding)
+                    mCallbacks);        // OnVerificationStateChangedCallbacks
+
+
+        }
+
+        if (v == btnVerify) {
+            verifyProgress.setVisibility(View.VISIBLE);
+            String verificationCode = mVerificationCodeView.getText().toString();
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verifiedId, verificationCode);
+            signInWithPhoneAuthCredential(credential);
         }
     }
 
-    protected void registerUser() {
-        final String email = mEmailView.getText().toString().trim();
-        final String password = mPasswordView.getText().toString();
-        final String confirmPassword = mConfirmPasswordView.getText().toString();
-
-        if (TextUtils.isEmpty(email)) {
-            Toast.makeText(this, "Please enter an email", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please enter your password", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (TextUtils.isEmpty(confirmPassword)) {
-            Toast.makeText(this, "Please enter your password confirmation", Toast.LENGTH_SHORT).show();
-        }
-
-
-        progressBar.setVisibility(View.VISIBLE);
-        mSignUpView.setVisibility(View.GONE);
-
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(SignUpActivity.this, "You are registered.", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                            finish();
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            imgVerifyDone.setVisibility(View.VISIBLE);
                             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
-                        }
-                        else {
-                            try {
-                                throw task.getException();
-                            } catch (Exception e) {
-                                Toast.makeText(SignUpActivity.this, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-
+                            // ...
+                        } else {
+                            // Sign in failed, display a message and update the UI
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                // The verification code entered was invalid
+                                Toast.makeText(SignUpActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
                             }
-                            mSignUpView.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
                         }
                     }
                 });
-
     }
-
 }
 

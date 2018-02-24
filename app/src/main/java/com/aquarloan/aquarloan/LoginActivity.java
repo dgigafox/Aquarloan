@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private EditText mMobileNumberView;
     private EditText mPasswordView;
     private Button loginBtn;
     private Button signUpNowBtn;
@@ -67,7 +67,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         setContentView(R.layout.activity_login);
         // Set up the login form.
 
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mMobileNumberView = (EditText) findViewById(R.id.mobileNumber);
         mPasswordView = (EditText) findViewById(R.id.password);
         mLoginView = (ScrollView) findViewById(R.id.login_form);
 
@@ -98,10 +98,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     }
 
     protected void loginUser(){
-        String email = mEmailView.getText().toString().trim();
+        String mobileNumber = mMobileNumberView.getText().toString().trim();
         String password = mPasswordView.getText().toString().trim();
 
-        if (TextUtils.isEmpty(email)) {
+        if (TextUtils.isEmpty(mobileNumber)) {
             Toast.makeText(this, "Please enter an email", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -114,7 +114,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         progressBar.setVisibility(View.VISIBLE);
         mLoginView.setVisibility(View.GONE);
 
-        firebaseAuth.signInWithEmailAndPassword(email, password)
+        firebaseAuth.signInWithEmailAndPassword(mobileNumber, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -133,6 +133,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                         }
                     }
                 });
+
     }
 }
 
