@@ -8,8 +8,19 @@ public class UserInformation {
     public String firstName;
     public String lastName;
 
-    public UserInformation(String firstName, String lastName){
+    public UserInformation() {
+    }
+
+    public UserInformation(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
     }
 }

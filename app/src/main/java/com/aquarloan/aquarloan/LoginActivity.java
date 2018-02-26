@@ -1,48 +1,28 @@
 package com.aquarloan.aquarloan;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.MainThread;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
+import com.aquarloan.aquarloan.Interfaces.UserLoginCredentials;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
+import java.util.Map;
 
 /**
  * A login screen that offers login via email/password.
@@ -60,6 +40,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     private ScrollView mLoginView;
     private ProgressBar progressBar;
     private FirebaseAuth firebaseAuth;
+    private String encryptedPassword;
+    private DatabaseReference databaseReference, users;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +61,8 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         loginBtn.setOnClickListener(this);
         signUpNowBtn.setOnClickListener(this);
 
+
+
         if(firebaseAuth.getCurrentUser() != null) {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
@@ -92,17 +76,18 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             loginUser();
         }
         if(v == signUpNowBtn) {
-            Intent intent = new Intent(this, SignUpActivity.class);
+            Intent intent = new Intent(this, PhoneNumberAuthenticationActivity.class);
             startActivity(intent);
         }
     }
 
     protected void loginUser(){
-        String mobileNumber = mMobileNumberView.getText().toString().trim();
+
+        final String mobileNumber = mMobileNumberView.getText().toString().trim();
         String password = mPasswordView.getText().toString().trim();
 
         if (TextUtils.isEmpty(mobileNumber)) {
-            Toast.makeText(this, "Please enter an email", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -111,10 +96,40 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-        mLoginView.setVisibility(View.GONE);
+        encryptedPassword = PasswordRegistrationActivity.convertPassMd5(password);
 
-        firebaseAuth.signInWithEmailAndPassword(mobileNumber, password)
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean exists = false;
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Map<String, Object> model = (Map<String, Object>) child.getValue();
+
+                    if(model.get("phoneNumber").equals(mobileNumber) && model.get("password").equals(encryptedPassword)) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if(exists) {
+                    Intent intent = new Intent(LoginActivity.this, PhoneNumberReauthenticationActivity.class);
+                    intent.putExtra("mobileNumber",mobileNumber);
+                    startActivity(intent);
+                }
+                else {
+                    Toast.makeText(LoginActivity.this, "Wrong username and password", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        /*firebaseAuth.signInWithEmailAndPassword(mobileNumber, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -132,7 +147,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
                             mLoginView.setVisibility(View.VISIBLE);
                         }
                     }
-                });
+                });*/
 
     }
 }

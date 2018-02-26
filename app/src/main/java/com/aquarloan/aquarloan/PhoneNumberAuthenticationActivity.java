@@ -5,10 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,7 +20,6 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
@@ -32,24 +28,29 @@ import java.util.concurrent.TimeUnit;
 /**
  * A login screen that offers login via email/password.
  */
-public class SignUpActivity extends AppCompatActivity implements View.OnClickListener{
+public class PhoneNumberAuthenticationActivity extends AppCompatActivity implements View.OnClickListener{
 
     // UI references.
+    public Button btnVerify, btnSend;
+    public String mobileNumber;
+    public PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
+    public PhoneAuthProvider.ForceResendingToken token;
+    public FirebaseAuth firebaseAuth;
+
     private ScrollView mSignUpView;
     private EditText mMobileNumberView, mVerificationCodeView;
     private TextView tvPromptSent;
     private View mProgressView;
-    private ImageView imgSendDone, imgVerifyDone;
-    private Button btnVerify, btnSend;
+    private ImageView imgSendDone;
+    public ImageView imgVerifyDone;
     private ProgressBar sendProgress, verifyProgress;
-    private FirebaseAuth firebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private String verifiedId;
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.activity_phone_number_authentication);
 
         mSignUpView = (ScrollView) findViewById(R.id.signup_form);
         tvPromptSent = (TextView) findViewById(R.id.tvPromptSent);
@@ -83,14 +84,16 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                Toast.makeText(SignUpActivity.this, "Verification failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PhoneNumberAuthenticationActivity.this, "Verification failed", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onCodeSent(String verificationId,
                                    PhoneAuthProvider.ForceResendingToken token) {
+                mMobileNumberView.setEnabled(false);
                 btnSend.setVisibility(View.GONE);
                 btnVerify.setVisibility(View.VISIBLE);
+                mVerificationCodeView.setVisibility(View.VISIBLE);
                 tvPromptSent.setVisibility(View.VISIBLE);
                 tvPromptSent.setText(R.string.prompt_sms_sent);
                 sendProgress.setVisibility(View.GONE);
@@ -104,15 +107,27 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == btnSend) {
-
             sendProgress.setVisibility(View.VISIBLE);
-            String mobileNumber = mMobileNumberView.getText().toString();
-            PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                    mobileNumber,        // Phone number to verify
-                    60,                 // Timeout duration
-                    TimeUnit.SECONDS,   // Unit of timeout
-                    this,               // Activity (for callback binding)
-                    mCallbacks);        // OnVerificationStateChangedCallbacks
+            mobileNumber = mMobileNumberView.getText().toString();
+
+            if (firebaseAuth.getCurrentUser() != null){
+
+                PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                        mobileNumber,        // Phone number to verify
+                        60,                 // Timeout duration
+                        TimeUnit.SECONDS,   // Unit of timeout
+                        this,               // Activity (for callback binding)
+                        mCallbacks,         // OnVerificationStateChangedCallbacks
+                        token);             // Force Resend SMS
+            }
+
+            else {
+
+                resendVerificationCode(mobileNumber, token);
+
+            }
+
+
 
 
         }
@@ -125,7 +140,18 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+    private void resendVerificationCode(String phoneNumber,
+                                        PhoneAuthProvider.ForceResendingToken token) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phoneNumber,        // Phone number to verify
+                60,                 // Timeout duration
+                TimeUnit.SECONDS,   // Unit of timeout
+                this,               // Activity (for callback binding)
+                mCallbacks,         // OnVerificationStateChangedCallbacks
+                token);             // ForceResendingToken from callbacks
+    }
+
+    public void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -133,14 +159,17 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             imgVerifyDone.setVisibility(View.VISIBLE);
-                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                            Intent intent = new Intent(PhoneNumberAuthenticationActivity.this, PasswordRegistrationActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            intent.putExtra("mobileNumber", mobileNumber);
                             startActivity(intent);
                             // ...
                         } else {
                             // Sign in failed, display a message and update the UI
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
-                                Toast.makeText(SignUpActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(PhoneNumberAuthenticationActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }

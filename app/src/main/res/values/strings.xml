@@ -9,6 +9,7 @@
     <string name="prompt_confirm_password">Confirm password</string>
     <string name="prompt_first_name">First Name</string>
     <string name="prompt_last_name">Last Name</string>
+    <string name="prompt_submit">Submit</string>
     <string name="prompt_sms_sent">An SMS verification code has been sent to your number.</string>
     <string name="action_verify">Verify</string>
     <string name="action_send">Send</string>

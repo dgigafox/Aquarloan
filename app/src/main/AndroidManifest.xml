@@ -25,10 +25,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SignUpActivity"
+            android:name=".PhoneNumberAuthenticationActivity"
             android:label="@string/title_activity_sign_up" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".SignUpPasswordActivity"></activity>
+        <activity android:name=".PasswordRegistrationActivity" />
+        <activity android:name=".PhoneNumberReauthenticationActivity"></activity>
     </application>
 
 </manifest>
