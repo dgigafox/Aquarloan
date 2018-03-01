@@ -84,7 +84,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                Toast.makeText(PhoneNumberAuthenticationActivity.this, "Verification failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PhoneNumberAuthenticationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
