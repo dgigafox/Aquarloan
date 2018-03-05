@@ -1,8 +1,10 @@
 package com.aquarloan.aquarloan;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         FirebaseUser user = firebaseAuth.getCurrentUser();
 
-        tvHello.setText("Hello " + user.getEmail());
+        tvHello.setText("Hello " + user.getPhoneNumber());
 
         signOutBtn.setOnClickListener(this);
         saveBtn.setOnClickListener(this);

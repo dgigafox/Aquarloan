@@ -1,5 +1,7 @@
 package com.aquarloan.aquarloan;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
@@ -33,8 +35,7 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     // UI references.
     private EditText mMobileNumberView;
     private EditText mPasswordView;
-    private Button loginBtn;
-    private Button signUpNowBtn;
+    private Button btnLoginDialogBox, btnLogin, btnCancel, btnRegister;
     private View mProgressView;
     private View mLoginFormView;
     private ScrollView mLoginView;
@@ -49,17 +50,16 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
         setContentView(R.layout.activity_login);
         // Set up the login form.
 
-        mMobileNumberView = (EditText) findViewById(R.id.mobileNumber);
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mLoginView = (ScrollView) findViewById(R.id.login_form);
 
-        loginBtn = (Button) findViewById(R.id.loginBtn);
-        signUpNowBtn = (Button) findViewById(R.id.signUpNowBtn);
-        progressBar = (ProgressBar) findViewById(R.id.login_progress);
+        /*mLoginView = (ScrollView) findViewById(R.id.login_form);*/
+
+        btnLoginDialogBox = (Button) findViewById(R.id.btnLoginDialogBox);
+        btnRegister = (Button) findViewById(R.id.btnRegister);
+        /*progressBar = (ProgressBar) findViewById(R.id.login_progress);*/
 
         firebaseAuth = firebaseAuth.getInstance();
-        loginBtn.setOnClickListener(this);
-        signUpNowBtn.setOnClickListener(this);
+        btnLoginDialogBox.setOnClickListener(this);
+        btnRegister.setOnClickListener(this);
 
 
 
@@ -71,84 +71,21 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
     }
 
     @Override
-    public void onClick(View v) {
-        if(v == loginBtn) {
-            loginUser();
+    public void onClick(View view) {
+        if(view == btnLoginDialogBox) {
+            //CUSTOM DIALOG BOX FOR LOGIN
+            CustomDialogLogin customDialogLogin = new CustomDialogLogin(LoginActivity.this);
+            customDialogLogin.show();
+
         }
-        if(v == signUpNowBtn) {
+        if(view == btnRegister) {
             Intent intent = new Intent(this, PhoneNumberAuthenticationActivity.class);
             startActivity(intent);
         }
     }
 
-    protected void loginUser(){
 
-        final String mobileNumber = mMobileNumberView.getText().toString().trim();
-        String password = mPasswordView.getText().toString().trim();
 
-        if (TextUtils.isEmpty(mobileNumber)) {
-            Toast.makeText(this, "Please enter your phone number", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        if (TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Please enter your password", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        encryptedPassword = PasswordRegistrationActivity.convertPassMd5(password);
-
-        databaseReference = FirebaseDatabase.getInstance().getReference("users");
-
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean exists = false;
-                for (DataSnapshot child : dataSnapshot.getChildren()) {
-                    Map<String, Object> model = (Map<String, Object>) child.getValue();
-
-                    if(model.get("phoneNumber").equals(mobileNumber) && model.get("password").equals(encryptedPassword)) {
-                        exists = true;
-                        break;
-                    }
-                }
-
-                if(exists) {
-                    Intent intent = new Intent(LoginActivity.this, PhoneNumberReauthenticationActivity.class);
-                    intent.putExtra("mobileNumber",mobileNumber);
-                    startActivity(intent);
-                }
-                else {
-                    Toast.makeText(LoginActivity.this, "Wrong username and password", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        /*firebaseAuth.signInWithEmailAndPassword(mobileNumber, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            finish();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        }
-                        else {
-                            Toast.makeText(LoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE);
-                            mLoginView.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });*/
-
-    }
 }
 
