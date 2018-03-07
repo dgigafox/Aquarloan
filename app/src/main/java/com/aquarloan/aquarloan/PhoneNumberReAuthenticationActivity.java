@@ -2,11 +2,9 @@ package com.aquarloan.aquarloan;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,7 +17,7 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
 
-public class PhoneNumberReauthenticationActivity extends PhoneNumberAuthenticationActivity implements View.OnClickListener {
+public class PhoneNumberReAuthenticationActivity extends PhoneNumberAuthenticationActivity implements View.OnClickListener {
 
     TextView tvPhoneNumber;
 
@@ -62,7 +60,7 @@ public class PhoneNumberReauthenticationActivity extends PhoneNumberAuthenticati
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             imgVerifyDone.setVisibility(View.VISIBLE);
-                            Intent intent = new Intent(PhoneNumberReauthenticationActivity.this, MainActivity.class);
+                            Intent intent = new Intent(PhoneNumberReAuthenticationActivity.this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             intent.putExtra("mobileNumber", mobileNumber);
@@ -72,7 +70,7 @@ public class PhoneNumberReauthenticationActivity extends PhoneNumberAuthenticati
                             // Sign in failed, display a message and update the UI
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
-                                Toast.makeText(PhoneNumberReauthenticationActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(PhoneNumberReAuthenticationActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }

@@ -1,8 +1,12 @@
 package com.aquarloan.aquarloan;
 
+import android.animation.ObjectAnimator;
+import android.animation.StateListAnimator;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
@@ -40,31 +44,33 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     public PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     public PhoneAuthProvider.ForceResendingToken token;
     public FirebaseAuth firebaseAuth;
+    public ImageView imgVerifyDone;
 
     private ScrollView mSignUpView;
     private EditText mMobileNumberView, mVerificationCodeView;
     private TextView tvPromptSent, toolbarTitle;
     private View mProgressView;
     private ImageView imgSendDone;
-    public ImageView imgVerifyDone;
     private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private String verifiedId;
     private Toolbar toolbar;
+    private AppBarLayout appBarLayout;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_number_authentication);
 
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
         toolbar = (Toolbar) findViewById(R.id.customToolbar);
         setSupportActionBar(toolbar);
 
         toolbarTitle.setText(getTitle().toString());
+        toolbar.getBackground().setAlpha(0);
 
         final ActionBar actionBar = getSupportActionBar();
-
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);

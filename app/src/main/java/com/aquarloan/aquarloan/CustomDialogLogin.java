@@ -2,10 +2,8 @@ package com.aquarloan.aquarloan;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -105,7 +103,7 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
                 }
 
                 if(exists) {
-                    Intent intent = new Intent(activity, PhoneNumberReauthenticationActivity.class);
+                    Intent intent = new Intent(activity, PhoneNumberReAuthenticationActivity.class);
                     intent.putExtra("mobileNumber",mobileNumber);
                     activity.startActivity(intent);
                 }

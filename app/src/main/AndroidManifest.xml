@@ -32,7 +32,7 @@
             android:parentActivityName=".LoginActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".PasswordRegistrationActivity" />
-        <activity android:name=".PhoneNumberReauthenticationActivity"></activity>
+        <activity android:name=".PhoneNumberReAuthenticationActivity"></activity>
     </application>
 
 </manifest>
