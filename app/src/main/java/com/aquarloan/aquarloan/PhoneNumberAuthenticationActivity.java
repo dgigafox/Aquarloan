@@ -1,15 +1,23 @@
 package com.aquarloan.aquarloan;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +32,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 import java.util.concurrent.TimeUnit;
+import static com.aquarloan.aquarloan.ActionBarAlign.actionBarCenter;
 
 /**
  * A login screen that offers login via email/password.
@@ -36,6 +45,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     public PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     public PhoneAuthProvider.ForceResendingToken token;
     public FirebaseAuth firebaseAuth;
+    public ActionBar actionBar;
 
     private ScrollView mSignUpView;
     private EditText mMobileNumberView, mVerificationCodeView;
@@ -51,6 +61,9 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_number_authentication);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         mSignUpView = (ScrollView) findViewById(R.id.signup_form);
         tvPromptSent = (TextView) findViewById(R.id.tvPromptSent);
@@ -103,6 +116,16 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     public void onClick(View v) {
