@@ -3,6 +3,7 @@ package com.aquarloan.aquarloan;
 import android.animation.ObjectAnimator;
 import android.animation.StateListAnimator;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.NavUtils;
@@ -12,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -31,6 +33,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,18 +48,18 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     public PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     public PhoneAuthProvider.ForceResendingToken token;
     public FirebaseAuth firebaseAuth;
-    public ImageView imgVerifyDone;
+    public ImageView imgVerifyDone, imgSendDone, imgMobile;
 
     private ScrollView mSignUpView;
     private EditText mMobileNumberView, mVerificationCodeView;
-    private TextView tvPromptSent, toolbarTitle;
+    private TextView tvPromptSent, toolbarTitle, tvTimer;
     private View mProgressView;
-    private ImageView imgSendDone;
     private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private String verifiedId;
+    private String verifiedId, verificationCode;
     private Toolbar toolbar;
     private AppBarLayout appBarLayout;
+    private Integer smsValidityTime = 120;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +80,16 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
-        mSignUpView = (ScrollView) findViewById(R.id.signup_form);
         tvPromptSent = (TextView) findViewById(R.id.tvPromptSent);
+        tvTimer = (TextView) findViewById(R.id.tvTimer);
+
+        mSignUpView = (ScrollView) findViewById(R.id.signup_form);
         mMobileNumberView = (EditText) findViewById(R.id.edMobileNumberSignUp);
         mVerificationCodeView = (EditText) findViewById(R.id.edVerificationCode);
         btnVerify = (Button) findViewById(R.id.btnVerify);
         btnSend = (Button) findViewById(R.id.btnSend);
+
+        imgMobile = (ImageView) findViewById(R.id.imgMobile);
         imgSendDone = (ImageView) findViewById(R.id.imgSendDone);
         imgVerifyDone = (ImageView) findViewById(R.id.imgVerifyDone);
 
@@ -99,10 +107,14 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         mVerificationCodeView.setVisibility(View.GONE);
         btnVerify.setVisibility(View.GONE);
 
+        tvPromptSent.setVisibility(View.GONE);
+        tvTimer.setVisibility(View.GONE);
+
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                 verifyProgress.setVisibility(View.GONE);
+                imgVerifyDone.setVisibility(View.VISIBLE);
                 signInWithPhoneAuthCredential(phoneAuthCredential);
             }
 
@@ -114,14 +126,45 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
             @Override
             public void onCodeSent(String verificationId,
                                    PhoneAuthProvider.ForceResendingToken token) {
-                mMobileNumberView.setEnabled(false);
+
                 btnSend.setVisibility(View.GONE);
                 btnVerify.setVisibility(View.VISIBLE);
                 mVerificationCodeView.setVisibility(View.VISIBLE);
                 tvPromptSent.setVisibility(View.VISIBLE);
                 tvPromptSent.setText(R.string.prompt_sms_sent);
+                tvTimer.setVisibility(View.VISIBLE);
                 sendProgress.setVisibility(View.GONE);
+                imgSendDone.setVisibility(View.VISIBLE);
                 verifiedId = verificationId;
+
+                //Timer
+                new CountDownTimer(smsValidityTime*1000, 1000){
+
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        tvTimer.setText(""+new SimpleDateFormat("mm:ss").format(new Date(millisUntilFinished)));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        //Enable textView and button
+                        mMobileNumberView.setEnabled(true);
+                        btnSend.setEnabled(true);
+
+                        //Hide all verification elements
+                        imgSendDone.setVisibility(View.GONE);
+                        sendProgress.setVisibility(View.GONE);
+                        verifyProgress.setVisibility(View.GONE);
+                        mVerificationCodeView.setVisibility(View.GONE);
+                        btnVerify.setVisibility(View.GONE);
+                        tvTimer.setVisibility(View.GONE);
+                        tvPromptSent.setVisibility(View.GONE);
+
+                        //Show mobile image and send button
+                        btnSend.setVisibility(View.VISIBLE);
+                        imgMobile.setVisibility(View.VISIBLE);
+                    }
+                }.start();
             }
         };
 
@@ -141,14 +184,17 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     @Override
     public void onClick(View v) {
         if (v == btnSend) {
+            imgMobile.setVisibility(View.GONE);
             sendProgress.setVisibility(View.VISIBLE);
+            mMobileNumberView.setEnabled(false);
+            btnSend.setEnabled(false);
             mobileNumber = mMobileNumberView.getText().toString();
 
             if (firebaseAuth.getCurrentUser() != null){
 
                 PhoneAuthProvider.getInstance().verifyPhoneNumber(
                         mobileNumber,        // Phone number to verify
-                        60,                 // Timeout duration
+                        smsValidityTime,                 // Timeout duration
                         TimeUnit.SECONDS,   // Unit of timeout
                         this,               // Activity (for callback binding)
                         mCallbacks,         // OnVerificationStateChangedCallbacks
@@ -156,21 +202,20 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
             }
 
             else {
-
                 resendVerificationCode(mobileNumber, token);
-
             }
-
-
-
-
         }
 
         if (v == btnVerify) {
-            verifyProgress.setVisibility(View.VISIBLE);
-            String verificationCode = mVerificationCodeView.getText().toString();
-            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verifiedId, verificationCode);
-            signInWithPhoneAuthCredential(credential);
+            verificationCode = mVerificationCodeView.getText().toString();
+            if (TextUtils.isEmpty(verificationCode)){
+                Toast.makeText(this, "Verification code is empty", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                verifyProgress.setVisibility(View.VISIBLE);
+                PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verifiedId, verificationCode);
+                signInWithPhoneAuthCredential(credential);
+            }
         }
     }
 
@@ -178,7 +223,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
                                         PhoneAuthProvider.ForceResendingToken token) {
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phoneNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                smsValidityTime,                 // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks,         // OnVerificationStateChangedCallbacks
@@ -192,6 +237,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
+                            verifyProgress.setVisibility(View.GONE);
                             imgVerifyDone.setVisibility(View.VISIBLE);
                             Intent intent = new Intent(PhoneNumberAuthenticationActivity.this, PasswordRegistrationActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -203,6 +249,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
                             // Sign in failed, display a message and update the UI
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
+                                verifyProgress.setVisibility(View.GONE);
                                 Toast.makeText(PhoneNumberAuthenticationActivity.this, "Verification code is invalid.", Toast.LENGTH_SHORT).show();
                             }
                         }
