@@ -1,12 +1,19 @@
 package com.aquarloan.aquarloan;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.support.design.widget.AppBarLayout;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aquarloan.aquarloan.Interfaces.UserLoginCredentials;
@@ -27,12 +34,29 @@ public class PasswordRegistrationActivity extends AppCompatActivity implements V
     private Button btnSubmit;
     private FirebaseUser user;
     private String encryptedPassword, mobileNumber;
+    private Toolbar toolbar;
+    private TextView toolbarTitle;
+    private AppBarLayout appBarLayout;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_password_registration);
+
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+        toolbar = (Toolbar) findViewById(R.id.customToolbar);
+        setSupportActionBar(toolbar);
+
+        toolbarTitle.setText(getTitle().toString());
+        toolbar.getBackground().setAlpha(0);
+
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
 
         firebaseAuth = firebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -72,6 +96,36 @@ public class PasswordRegistrationActivity extends AppCompatActivity implements V
             encryptedPassword = convertPassMd5(password);
             saveUserPassword();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                signOut(firebaseAuth, this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        signOut(firebaseAuth, this);
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onStop(){
+        firebaseAuth.signOut();
+        super.onStop();
+    }
+
+    public void signOut(FirebaseAuth firebaseAuth, Activity activity) {
+        firebaseAuth.signOut();
+        finish();
+        Intent intent = new Intent(activity, LoginActivity.class);
+        startActivity(intent);
     }
 
     public void saveUserPassword() {

@@ -31,7 +31,10 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".LoginActivity" />
         <activity android:name=".MainActivity" />
-        <activity android:name=".PasswordRegistrationActivity" />
+        <activity
+            android:name=".PasswordRegistrationActivity"
+            android:label="@string/title_activity_password_registration"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".PhoneNumberReAuthenticationActivity"></activity>
     </application>
 
