@@ -120,6 +120,10 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
+                mMobileNumberView.setEnabled(true);
+                sendProgress.setVisibility(View.GONE);
+                imgMobile.setVisibility(View.VISIBLE);
+                btnSend.setEnabled(true);
                 Toast.makeText(PhoneNumberAuthenticationActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 

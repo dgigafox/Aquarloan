@@ -30,52 +30,48 @@
 
             <LinearLayout
                 android:id="@+id/mobile_number_layout"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="0dp"
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="40dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.25"
-                    android:orientation="horizontal"
-                    android:weightSum="1">
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/flag_ph" />
 
-                    <ImageView
-                        android:id="@+id/imageView"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="bottom"
-                        android:layout_weight="0.55"
-                        app:srcCompat="@drawable/flag_ph" />
-
-                    <TextView
-                        android:id="@+id/countryCode"
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="bottom"
-                        android:layout_weight="0.45"
-                        android:autoText="false"
-                        android:gravity="center"
-                        android:singleLine="false"
-                        android:text="63"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-                        android:textColor="@android:color/white"
-                        android:textSize="24sp" />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/countryCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:autoText="false"
+                    android:gravity="center"
+                    android:maxEms="1"
+                    android:minEms="1"
+                    android:singleLine="false"
+                    android:text="63"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Button"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp" />
 
                 <EditText
                     android:id="@+id/edMobileNumberSignUp"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="0.6"
                     android:background="@color/common_google_signin_btn_text_light_disabled"
-                    android:ems="10"
                     android:gravity="center|start"
                     android:inputType="number"
+                    android:maxEms="5"
                     android:maxLength="10"
+                    android:minEms="5"
+                    android:paddingLeft="2dp"
+                    android:paddingStart="2dp"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
                     android:textAppearance="@style/TextAppearance.AppCompat.Button"
@@ -83,10 +79,9 @@
                     android:textSize="24sp" />
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_weight="0.15"
-                    android:gravity="center"
+                    android:layout_weight="1"
                     android:orientation="horizontal">
 
                     <ImageView
@@ -96,14 +91,6 @@
                         android:layout_weight="1"
                         app:srcCompat="@drawable/ic_action_register_mobile" />
 
-                    <ImageView
-                        android:id="@+id/imgSendDone"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_sms_sent" />
-
                     <ProgressBar
                         android:id="@+id/sendProgress"
                         style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Inverse"
@@ -111,6 +98,14 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:visibility="gone" />
+
+                    <ImageView
+                        android:id="@+id/imgSendDone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/ic_sms_sent" />
                 </LinearLayout>
 
             </LinearLayout>
