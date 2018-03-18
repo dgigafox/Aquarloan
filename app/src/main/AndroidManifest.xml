@@ -27,7 +27,7 @@
         </activity>
         <activity
             android:name=".PhoneNumberAuthenticationActivity"
-            android:label="@string/title_activity_sign_up"
+            android:label="@string/title_activity_phone_number_authentication"
             android:theme="@style/AppTheme.NoActionBar"
             android:parentActivityName=".LoginActivity" />
         <activity android:name=".MainActivity" />
@@ -35,7 +35,11 @@
             android:name=".PasswordRegistrationActivity"
             android:label="@string/title_activity_password_registration"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".PhoneNumberReAuthenticationActivity"></activity>
+        <activity
+            android:name=".PhoneNumberReAuthenticationActivity"
+            android:label="@string/title_activity_phone_number_reauthentication"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName=".LoginActivity"/>
     </application>
 
 </manifest>

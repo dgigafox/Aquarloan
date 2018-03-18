@@ -46,14 +46,20 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_login);
 
+        //VIEWS INITIALIZATION
         btnLogin = (Button) findViewById(R.id.btnLogin);
         btnCancel = (Button) findViewById(R.id.btnCancel);
 
         etMobileNumber = (EditText) findViewById(R.id.mobileNumber);
         etPassword = (EditText) findViewById(R.id.password);
 
+        //SET CURSOR TO LAST TEXT etMobileNumber
+        etMobileNumber.setSelection(etMobileNumber.getText().length());
+
+        //FIREBASE AUTHENTICATION INITIALIZATION
         firebaseAuth = firebaseAuth.getInstance();
 
+        //BUTTONS ONCLICK LISTENERS
         btnLogin.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
 

@@ -3,6 +3,11 @@ package com.aquarloan.aquarloan;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,16 +31,46 @@ public class PhoneNumberReAuthenticationActivity extends PhoneNumberAuthenticati
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_number_reauthentication);
 
+        //TOOLBAR SETUP
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+        toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+        toolbar = (Toolbar) findViewById(R.id.customToolbar);
+        setSupportActionBar(toolbar);
+
+        toolbarTitle.setText(getTitle().toString());
+        toolbar.getBackground().setAlpha(0);
+
+        //TOOLBAR BACKBUTTON
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+
+        //GET INTENT
         mobileNumber = getIntent().getStringExtra("mobileNumber");
+
+        //VIEW INITIALIZATIONS
         tvPhoneNumber = (TextView) findViewById(R.id.tvPhoneNumber);
         btnVerify = (Button) findViewById(R.id.btnVerify);
         btnSend = (Button) findViewById(R.id.btnSend);
-
         tvPhoneNumber.setText(mobileNumber);
 
+        //BUTTONS ONLICK LISTENER
         btnVerify.setOnClickListener(this);
         btnSend.setOnClickListener(this);
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

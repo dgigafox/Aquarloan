@@ -24,12 +24,19 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_login">Sign in</string>
+
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
-    <string name="title_activity_sign_up">Sign Up</string>
-    <string name="title_activity_password_registration">Input Password</string>
+
     <string name="action_sign_out">Sign out</string>
     <string name="action_submit">Submit</string>
     <string name="action_save">Save</string>
+    <string name="intro_mobile_number_layout">Please enter your mobile number below</string>
+
+    <!--Activity Titles-->
+    <string name="title_activity_login">Sign in</string>
+    <string name="title_activity_phone_number_authentication">Sign Up</string>
+    <string name="title_activity_password_registration">Input Password</string>
+    <string name="title_activity_phone_number_reauthentication">Mobile Authentication</string>
+
 </resources>

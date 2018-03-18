@@ -44,21 +44,23 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
     // UI references.
     public Button btnVerify, btnSend;
-    public String mobileNumber;
+    public String countryCode = "", mobileNumber;
     public PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     public PhoneAuthProvider.ForceResendingToken token;
     public FirebaseAuth firebaseAuth;
     public ImageView imgVerifyDone, imgSendDone, imgMobile;
+    public Toolbar toolbar;
+    public AppBarLayout appBarLayout;
+    public TextView toolbarTitle;
 
     private ScrollView mSignUpView;
     private EditText mMobileNumberView, mVerificationCodeView;
-    private TextView tvPromptSent, toolbarTitle, tvTimer;
+    private TextView tvPromptSent, tvTimer, tvCountryCode;
     private View mProgressView;
     private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private String verifiedId, verificationCode;
-    private Toolbar toolbar;
-    private AppBarLayout appBarLayout;
+
     private Integer smsValidityTime = 120;
 
 
@@ -66,6 +68,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_phone_number_authentication);
 
+        //TOOLBAR SETUP
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
         toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
         toolbar = (Toolbar) findViewById(R.id.customToolbar);
@@ -74,16 +77,19 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         toolbarTitle.setText(getTitle().toString());
         toolbar.getBackground().setAlpha(0);
 
+        //TOOLBAR BACKBUTTON
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
 
+        //VIEW INITIALIZATION
         tvPromptSent = (TextView) findViewById(R.id.tvPromptSent);
         tvTimer = (TextView) findViewById(R.id.tvTimer);
 
         mSignUpView = (ScrollView) findViewById(R.id.signup_form);
+        tvCountryCode = (TextView) findViewById(R.id.countryCode);
         mMobileNumberView = (EditText) findViewById(R.id.edMobileNumberSignUp);
         mVerificationCodeView = (EditText) findViewById(R.id.edVerificationCode);
         btnVerify = (Button) findViewById(R.id.btnVerify);
@@ -96,10 +102,14 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         sendProgress = (ProgressBar) findViewById(R.id.sendProgress);
         verifyProgress = (ProgressBar) findViewById(R.id.verifyProgress);
 
+        //FIREBASE AUTHENTICATION INITIALIZATION
         firebaseAuth = FirebaseAuth.getInstance();
+
+        //SET ONCLICK LISTENERS
         btnSend.setOnClickListener(this);
         btnVerify.setOnClickListener(this);
 
+        //VIEWS VISIBILITY SETUP
         imgSendDone.setVisibility(View.GONE);
         imgVerifyDone.setVisibility(View.GONE);
         sendProgress.setVisibility(View.GONE);
@@ -110,6 +120,10 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
         tvPromptSent.setVisibility(View.GONE);
         tvTimer.setVisibility(View.GONE);
 
+        //SET COUNTRY CODE
+        setCountryCode();
+
+        //CALLBACK AND TIMER FUNCTION FOR SMS VERIFICATION
         mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
@@ -174,6 +188,12 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
     }
 
+    //RESERVED FUNCTION FOR SETTING UP THE COUNTRY CODE USING SPINNER
+    private void setCountryCode() {
+        countryCode = "63";
+        tvCountryCode.setText(countryCode);
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -188,26 +208,36 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     @Override
     public void onClick(View v) {
         if (v == btnSend) {
-            imgMobile.setVisibility(View.GONE);
-            sendProgress.setVisibility(View.VISIBLE);
-            mMobileNumberView.setEnabled(false);
-            btnSend.setEnabled(false);
             mobileNumber = mMobileNumberView.getText().toString();
 
-            if (firebaseAuth.getCurrentUser() != null){
-
-                PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                        mobileNumber,        // Phone number to verify
-                        smsValidityTime,                 // Timeout duration
-                        TimeUnit.SECONDS,   // Unit of timeout
-                        this,               // Activity (for callback binding)
-                        mCallbacks,         // OnVerificationStateChangedCallbacks
-                        token);             // Force Resend SMS
+            if (TextUtils.isEmpty(mobileNumber)) {
+                Toast.makeText(this, "Please enter your mobile number", Toast.LENGTH_SHORT).show();
             }
 
             else {
-                resendVerificationCode(mobileNumber, token);
+                imgMobile.setVisibility(View.GONE);
+                sendProgress.setVisibility(View.VISIBLE);
+                mMobileNumberView.setEnabled(false);
+                btnSend.setEnabled(false);
+                mobileNumber = countryCode + mobileNumber;
+
+                if (firebaseAuth.getCurrentUser() != null){
+
+                    PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                            mobileNumber,        // Phone number to verify
+                            smsValidityTime,                 // Timeout duration
+                            TimeUnit.SECONDS,   // Unit of timeout
+                            this,               // Activity (for callback binding)
+                            mCallbacks,         // OnVerificationStateChangedCallbacks
+                            token);             // Force Resend SMS
+                }
+
+                else {
+                    resendVerificationCode(mobileNumber, token);
+                }
             }
+
+
         }
 
         if (v == btnVerify) {
