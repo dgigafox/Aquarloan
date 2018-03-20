@@ -54,12 +54,12 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     public TextView toolbarTitle;
 
     private ScrollView mSignUpView;
-    private EditText mMobileNumberView, mVerificationCodeView;
+    public EditText mMobileNumberView, mVerificationCodeView;
     private TextView tvPromptSent, tvTimer, tvCountryCode;
     private View mProgressView;
     private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private String verifiedId, verificationCode;
+    public String verifiedId, verificationCode;
 
     private Integer smsValidityTime = 120;
 

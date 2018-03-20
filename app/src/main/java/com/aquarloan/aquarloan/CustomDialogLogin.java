@@ -2,8 +2,11 @@ package com.aquarloan.aquarloan;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -33,6 +36,7 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
     private EditText etMobileNumber, etPassword;
     private DatabaseReference databaseReference;
     private FirebaseAuth firebaseAuth;
+    private ProgressDialog progressDialog;
 
 
     public CustomDialogLogin(Activity activity) {
@@ -52,6 +56,8 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
 
         etMobileNumber = (EditText) findViewById(R.id.mobileNumber);
         etPassword = (EditText) findViewById(R.id.password);
+
+        progressDialog = new ProgressDialog(activity);
 
         //SET CURSOR TO LAST TEXT etMobileNumber
         etMobileNumber.setSelection(etMobileNumber.getText().length());
@@ -82,11 +88,43 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
                 return;
             }
 
-            loginUser(mobileNumber, password);
+            new LoginTask(mobileNumber, password).execute();
         }
 
         if(v == btnCancel) {
             dismiss();
+        }
+    }
+
+    //LOGIN ASYNC TASK
+    private class LoginTask extends AsyncTask<Void, Void, Void> {
+        String mobileNumber, password;
+
+        public LoginTask(String mobileNumber, String password){
+            this.mobileNumber = mobileNumber;
+            this.password = password;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            loginUser(mobileNumber, password);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            progressDialog.setMessage("Loading...");
+            progressDialog.setIndeterminate(false);
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+        }
+
+        @Override
+        protected void onPostExecute(final Void unused) {
+            progressDialog.dismiss();
         }
     }
 
@@ -109,6 +147,7 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
                 }
 
                 if(exists) {
+                    Toast.makeText(activity, "Successful login", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(activity, PhoneNumberReAuthenticationActivity.class);
                     intent.putExtra("mobileNumber",mobileNumber);
                     activity.startActivity(intent);

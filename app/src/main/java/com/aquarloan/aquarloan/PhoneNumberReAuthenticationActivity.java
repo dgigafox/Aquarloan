@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,11 +56,17 @@ public class PhoneNumberReAuthenticationActivity extends PhoneNumberAuthenticati
         btnVerify = (Button) findViewById(R.id.btnVerify);
         btnSend = (Button) findViewById(R.id.btnSend);
         tvPhoneNumber.setText(mobileNumber);
+        mVerificationCodeView = (EditText) findViewById(R.id.edVerificationCode);
 
         //BUTTONS ONLICK LISTENER
         btnVerify.setOnClickListener(this);
         btnSend.setOnClickListener(this);
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
     }
 
     @Override
