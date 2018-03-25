@@ -115,11 +115,12 @@ public class PasswordRegistrationActivity extends AppCompatActivity implements V
         super.onBackPressed();
     }
 
-    @Override
+    //NEED FUNCTION TO DISPLAY SET PASSWORD SCREEN ONSTOP OF THIS ACTIVITY
+    /*@Override
     public void onStop(){
         firebaseAuth.signOut();
         super.onStop();
-    }
+    }*/
 
     public void signOut(FirebaseAuth firebaseAuth, Activity activity) {
         firebaseAuth.signOut();
@@ -128,7 +129,7 @@ public class PasswordRegistrationActivity extends AppCompatActivity implements V
         startActivity(intent);
     }
 
-    public void saveUserPassword() {
+    private void saveUserPassword() {
 
         UserLoginCredentials userLoginCredentials = new UserLoginCredentials(encryptedPassword, mobileNumber);
         databaseReference.child(user.getUid()).setValue(userLoginCredentials);

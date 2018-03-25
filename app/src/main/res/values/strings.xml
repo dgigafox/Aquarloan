@@ -39,4 +39,6 @@
     <string name="title_activity_password_registration">Input Password</string>
     <string name="title_activity_phone_number_reauthentication">Mobile Authentication</string>
 
+    <!--Dialog Box-->
+    <string name="prompt_dialog_set_password">You need to set your password first to proceed.</string>
 </resources>

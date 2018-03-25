@@ -86,7 +86,7 @@ public class PhoneNumberReAuthenticationActivity extends PhoneNumberAuthenticati
 
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 mobileNumber,        // Phone number to verify
-                60,                 // Timeout duration
+                smsValidityTime,    // Timeout duration
                 TimeUnit.SECONDS,   // Unit of timeout
                 this,               // Activity (for callback binding)
                 mCallbacks,         // OnVerificationStateChangedCallbacks

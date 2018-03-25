@@ -52,17 +52,15 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
     public Toolbar toolbar;
     public AppBarLayout appBarLayout;
     public TextView toolbarTitle;
+    public Integer smsValidityTime = 60;
+    public String verifiedId, verificationCode;
+    public EditText mMobileNumberView, mVerificationCodeView;
 
     private ScrollView mSignUpView;
-    public EditText mMobileNumberView, mVerificationCodeView;
     private TextView tvPromptSent, tvTimer, tvCountryCode;
     private View mProgressView;
     private ProgressBar sendProgress, verifyProgress;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    public String verifiedId, verificationCode;
-
-    private Integer smsValidityTime = 120;
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,7 +219,14 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
                 btnSend.setEnabled(false);
                 mobileNumber = countryCode + mobileNumber;
 
-                if (firebaseAuth.getCurrentUser() != null){
+                PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                        mobileNumber,        // Phone number to verify
+                        smsValidityTime,                 // Timeout duration
+                        TimeUnit.SECONDS,   // Unit of timeout
+                        this,               // Activity (for callback binding)
+                        mCallbacks,         // OnVerificationStateChangedCallbacks
+                        token);             // Force Resend SMS
+                /*if (firebaseAuth.getCurrentUser() != null){
 
                     PhoneAuthProvider.getInstance().verifyPhoneNumber(
                             mobileNumber,        // Phone number to verify
@@ -234,7 +239,7 @@ public class PhoneNumberAuthenticationActivity extends AppCompatActivity impleme
 
                 else {
                     resendVerificationCode(mobileNumber, token);
-                }
+                }*/
             }
 
 
