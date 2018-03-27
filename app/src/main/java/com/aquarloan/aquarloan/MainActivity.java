@@ -12,6 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aquarloan.aquarloan.Interfaces.UserInformation;
+import com.github.omadahealth.lollipin.lib.PinActivity;
+import com.github.omadahealth.lollipin.lib.managers.AppLock;
+import com.github.omadahealth.lollipin.lib.managers.LockManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,7 +28,7 @@ import org.w3c.dom.Text;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends PinActivity implements View.OnClickListener {
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference, databaseReferenceUsers, databaseReferenceCashPool;
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private EditText edFirstName, edLastName;
     private FirebaseUser user;
     private String mobileNumber;
+    private static final int REQUEST_CODE_ENABLE = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mobileNumber = user.getPhoneNumber().replace("+","");
 
+        //IF USER IS NOT LOGGED IN APP WILL SHOW LOGIN SCREEN IF LOGGED IN CHECK IF PASSWORD IS SET
         if(user == null) {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
@@ -81,6 +86,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
         }
 
+        //CHECK IF PIN IS SET
+        if (!LockManager.getInstance().getAppLock().isPasscodeSet()) {
+            Intent intent = new Intent(this, CustomPinActivity.class);
+            intent.putExtra(AppLock.EXTRA_TYPE, AppLock.ENABLE_PINLOCK);
+            startActivityForResult(intent, REQUEST_CODE_ENABLE);
+        }
 
         /*databaseReferenceUsers = FirebaseDatabase.getInstance().getReference("users");
         databaseReferenceCashPool = FirebaseDatabase.getInstance().getReference("cash_pool");*/

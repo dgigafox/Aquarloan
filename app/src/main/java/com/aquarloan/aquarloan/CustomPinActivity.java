@@ -8,12 +8,6 @@ import com.github.omadahealth.lollipin.lib.managers.AppLockActivity;
 public class CustomPinActivity extends AppLockActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_custom_pin);
-    }
-
-    @Override
     public void showForgotDialog() {
 
     }
