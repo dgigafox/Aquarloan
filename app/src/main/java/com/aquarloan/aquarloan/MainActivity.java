@@ -2,9 +2,21 @@ package com.aquarloan.aquarloan;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatCallback;
+import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.view.ActionMode;
+import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,41 +40,76 @@ import org.w3c.dom.Text;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends PinActivity implements View.OnClickListener {
+public class MainActivity extends PinActivity implements AppCompatCallback, NavigationView.OnNavigationItemSelectedListener {
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference, databaseReferenceUsers, databaseReferenceCashPool;
-    private TextView tvHello, tvCashPool;
+    private TextView tvUsername, tvCashPool;
     private Button saveBtn, signOutBtn;
     private EditText edFirstName, edLastName;
     private FirebaseUser user;
     private String mobileNumber;
     private static final int REQUEST_CODE_ENABLE = 11;
+    private AppCompatDelegate delegate;
+    private DrawerLayout drawer;
+    private ActionBarDrawerToggle toggle;
+    private NavigationView navigationView;
+    private View headerView;
+    private Menu navMenu;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //SETUP TOOLBAR
+        //let's create the delegate, passing the activity at both arguments (Activity, AppCompatCallback)
+        delegate = AppCompatDelegate.create(this, this);
+
+        //we need to call the onCreate() of the AppCompatDelegate
+        delegate.onCreate(savedInstanceState);
+
+        //we use the delegate to inflate the layout
+        delegate.setContentView(R.layout.activity_main);
+
+        //Finally, let's add the Toolbar
+        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
+        delegate.setSupportActionBar(toolbar);
+
+        //MENU SETUP
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        headerView = navigationView.getHeaderView(0);
+        navMenu = navigationView.getMenu();
+
+
+        //INITIALIZATIONS
         firebaseAuth = firebaseAuth.getInstance();
-        tvCashPool = (TextView) findViewById(R.id.tvCashPool);
-        tvHello = (TextView) findViewById(R.id.tvHello);
-        edFirstName = (EditText) findViewById(R.id.edFirstName);
-        edLastName = (EditText) findViewById(R.id.edLastName);
-        signOutBtn = (Button) findViewById(R.id.signOutBtn);
-        saveBtn = (Button) findViewById(R.id.saveBtn);
+        tvUsername = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tvUsername);
 
         user = firebaseAuth.getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         mobileNumber = user.getPhoneNumber().replace("+","");
 
-        //IF USER IS NOT LOGGED IN APP WILL SHOW LOGIN SCREEN IF LOGGED IN CHECK IF PASSWORD IS SET
+        //NAV HEAD DRAWER
+        tvUsername.setText(user.getPhoneNumber());
+
+        //IF USER IS NOT LOGGED IN APP WILL SHOW LOGIN SCREEN
         if(user == null) {
             finish();
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
+        //IF LOGGED IN CHECK IF PASSWORD IS SET
         else {
             databaseReference.child("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -93,63 +140,47 @@ public class MainActivity extends PinActivity implements View.OnClickListener {
             startActivityForResult(intent, REQUEST_CODE_ENABLE);
         }
 
-        /*databaseReferenceUsers = FirebaseDatabase.getInstance().getReference("users");
-        databaseReferenceCashPool = FirebaseDatabase.getInstance().getReference("cash_pool");*/
-        displayCashPool();
 
 
-
-        tvHello.setText("Hello " + user.getUid());
-
-        signOutBtn.setOnClickListener(this);
-        saveBtn.setOnClickListener(this);
-
-    }
-
-    private void displayCashPool() {
-        // Attach a listener to read the data at our posts reference
-        databaseReference.child("cash_pool").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String cashPool = dataSnapshot.getValue().toString();
-                tvCashPool.setText(cashPool);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
-            }
-        });
-    }
-
-
-    private void saveUserInformation(){
-        String firstName = edFirstName.getText().toString().trim();
-        String lastName = edLastName.getText().toString().trim();
-
-        /*UserInformation userInformation = new UserInformation(firstName, lastName);*/
-        //Testing HashMap below
-        Map<String, Object> userInformation = new HashMap<>();
-        userInformation.put("first_name",firstName);
-        userInformation.put("last_name",lastName);
-
-        databaseReference.child("users").child(user.getUid()).updateChildren(userInformation);
-        Toast.makeText(this, "Information Saved", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onClick(View v) {
-        if(v == signOutBtn) {
-            firebaseAuth.signOut();
-            Toast.makeText(this, "You are logged out", Toast.LENGTH_SHORT).show();
+    public void onBackPressed(){
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        }
+        else {
             finish();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
         }
+    }
 
-        if(v == saveBtn) {
-            saveUserInformation();
+    @Override
+    public void onSupportActionModeStarted(ActionMode mode) {
+
+    }
+
+    @Override
+    public void onSupportActionModeFinished(ActionMode mode) {
+
+    }
+
+    @Nullable
+    @Override
+    public ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback) {
+        return null;
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_logout) {
+            firebaseAuth.signOut();
+            finish();
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            Toast.makeText(this, "You are logged out.", Toast.LENGTH_SHORT).show();
         }
+        return true;
     }
 }
 

@@ -65,7 +65,10 @@ public class LoginActivity extends AppCompatActivity implements OnClickListener 
 
         if(firebaseAuth.getCurrentUser() != null) {
             Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+            finish();
         }
 
     }

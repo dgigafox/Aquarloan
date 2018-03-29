@@ -150,6 +150,8 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
                     Toast.makeText(activity, "Successful login", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(activity, PhoneNumberReAuthenticationActivity.class);
                     intent.putExtra("mobileNumber",mobileNumber);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     activity.startActivity(intent);
                 }
                 else {
