@@ -1,10 +1,13 @@
 package com.aquarloan.aquarloan;
 
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.app.FragmentManager;
+import android.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,6 +26,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.aquarloan.aquarloan.Fragments.AboutFragment;
+import com.aquarloan.aquarloan.Fragments.HomeFragment;
 import com.aquarloan.aquarloan.Interfaces.UserInformation;
 import com.github.omadahealth.lollipin.lib.PinActivity;
 import com.github.omadahealth.lollipin.lib.managers.AppLock;
@@ -56,12 +62,15 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
     private NavigationView navigationView;
     private View headerView;
     private Menu navMenu;
+    private Toolbar toolbar;
 
+    public HomeFragment homeFragment;
+    public AboutFragment aboutFragment;
+    public FragmentManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         //SETUP TOOLBAR
         //let's create the delegate, passing the activity at both arguments (Activity, AppCompatCallback)
@@ -74,8 +83,9 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
         delegate.setContentView(R.layout.activity_main);
 
         //Finally, let's add the Toolbar
-        Toolbar toolbar= (Toolbar) findViewById(R.id.toolbar);
+        toolbar= (Toolbar) findViewById(R.id.toolbar);
         delegate.setSupportActionBar(toolbar);
+
 
         //MENU SETUP
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -84,7 +94,7 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         headerView = navigationView.getHeaderView(0);
@@ -92,6 +102,7 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
 
 
         //INITIALIZATIONS
+        manager = getFragmentManager();
         firebaseAuth = firebaseAuth.getInstance();
         tvUsername = (TextView) navigationView.getHeaderView(0).findViewById(R.id.tvUsername);
 
@@ -102,6 +113,14 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
 
         //NAV HEAD DRAWER
         tvUsername.setText(user.getPhoneNumber());
+
+        //SET DEFAULT PAGE TO HOME
+        homeFragment = new HomeFragment();
+        manager.beginTransaction().add(R.id.content_main, homeFragment, "homeFragment")
+                .addToBackStack("homeFragment")
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+        navigationView.getMenu().getItem(0).setChecked(true);
+        setTitle("Aquarloan");
 
         //IF USER IS NOT LOGGED IN APP WILL SHOW LOGIN SCREEN
         if(user == null) {
@@ -173,13 +192,36 @@ public class MainActivity extends PinActivity implements AppCompatCallback, Navi
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_logout) {
-            firebaseAuth.signOut();
-            finish();
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            Toast.makeText(this, "You are logged out.", Toast.LENGTH_SHORT).show();
+        switch (id) {
+            case R.id.nav_home:
+                homeFragment = new HomeFragment();
+                manager.beginTransaction().replace(R.id.content_main, homeFragment, "homeFragment")
+                        .addToBackStack("homeFragment")
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+                navigationView.getMenu().getItem(0).setChecked(true);
+                setTitle("Aquarloan");
+                break;
+
+            case R.id.nav_about:
+                aboutFragment = new AboutFragment();
+                manager.beginTransaction().replace(R.id.content_main, aboutFragment, "aboutFragment")
+                        .addToBackStack("aboutFragment")
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit();
+                navigationView.getMenu().getItem(1).setChecked(true);
+                setTitle("About");
+                break;
+
+            case R.id.nav_logout:
+                firebaseAuth.signOut();
+                finish();
+                Intent intent = new Intent(this, LoginActivity.class);
+                startActivity(intent);
+                Toast.makeText(this, "You are logged out.", Toast.LENGTH_SHORT).show();
+                break;
+
         }
+
+        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 }

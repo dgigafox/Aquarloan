@@ -20,7 +20,7 @@ import com.github.omadahealth.lollipin.lib.managers.AppLockActivity;
  * Then to enable PinCode blocking, you must call
  * {@link com.github.omadahealth.lollipin.lib.managers.LockManager#enableAppLock(android.content.Context, Class)}
  */
-public class PinActivity extends Activity {
+public class PinActivity extends AppCompatActivity {
     private static LifeCycleInterface mLifeCycleListener;
     private final BroadcastReceiver mPinCancelledReceiver;
 

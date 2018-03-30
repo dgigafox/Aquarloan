@@ -43,6 +43,13 @@
     <string name="title_activity_password_registration">Input Password</string>
     <string name="title_activity_phone_number_reauthentication">Mobile Authentication</string>
 
+    <!--Fragment Titles-->
+    <string name="title_fragment_home">Aquarloan</string>
+
+
     <!--Dialog Box-->
     <string name="prompt_dialog_set_password">You need to set your password first to proceed.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

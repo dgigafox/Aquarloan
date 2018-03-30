@@ -125,6 +125,7 @@ public class CustomDialogLogin extends Dialog implements View.OnClickListener {
         @Override
         protected void onPostExecute(final Void unused) {
             progressDialog.dismiss();
+            dismiss();
         }
     }
 
